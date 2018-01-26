@@ -1,6 +1,6 @@
 from multiprocessing  import Process
 import signal
-import socket
+from ezsocket import create_socket
 
 """
 
@@ -34,29 +34,23 @@ def handle_request(request, locator):
 
     # Listen to the locator for a connection
     # Timeout after <k> milliseconds
-    llisten_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    llisten_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 2)
-    llisten_socket.bind(locator)
+    listen_socket = create_socket(locator)
 
     def alarm_handler(signum, frame):
-        llisten_socket.close()
+        listen_socket.close()
         print("Socket closed!")
         exit(1)
-
-    llisten_socket.listen(10)
 
     # Code found at https://docs.python.org/2/library/signal.html
     # Set the signal handler and a 5-second alarm
     signal.signal(signal.SIGALRM, alarm_handler)
     signal.alarm(5)
 
-    print("Flag")
-    client_coonnection, client_adddress = llisten_socket.accept()
+    client_connection, client_adddress = listen_socket.accept()
 
     request = client_coonnection.recv(1024)
-    print(request)
-    client_coonnection.send(b"Floop dee doo1!!\r\n\r\n")
-    client_coonnection.close()
+    client_connection.send(b"Floop dee doo1!!\r\n\r\n")
+    client_connection.close()
 
 class MCMRequestHandler:
     def distribute_request(self, request, client_connection):
