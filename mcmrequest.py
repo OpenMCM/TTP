@@ -3,37 +3,39 @@ import signal
 from ezsocket import create_socket
 
 """
-
     Requests can take the following forms:
     1. Placing transactions
-        "T <txbytes>"
+        - "T <txbytes>"
+        - return "<ack>"
     2. Receiving bids
         - "B <txbytes>"
+        - return "<ack>"
     3. Viewing bids
-        - Take filtering criteria from client
-        - Send all bids that fit criteria to client
+        - "V <filtering criteria>"
+        - return "<numBids>;<Bid1hex>:<Bid2hex>:..."
     4. Receiving bid acceptances
-        - Transaction, created by client, sent to TTP
-        - Contains pointer to initial bid
+        - "A <bidIdentifier>:<txbytes>"
+        - return "<ack>"
     5. Register/Deregister external address
-        - Takes a pairing (External Address,  MCMAddress, Bool)
-        - Registers if Bool == true, deregisters if Bool == false
+        - "E <external address>:<MCM address>:<Bool>:<Blockchain Identifier>"
+        - return "<ack>"
     6. Cashing out
-        - TTP receives pointer to an MCM burn
-        - Looks up relative address
+        - "O <txhash>"
+        - return "<ack> <txhash>"
     7. Cashing in
         - TTP receives pointer to an external burn
         - Looks up relative address
         - Mints respective coin, sends to address
-
+        - "I <txhash>:<Blockchain Identifier>"
+        - return "<ack> <txhash>"
 """
 
 
 def handle_request(request, locator):
-    print(request, "\n\n", locator)
 
     # Listen to the locator for a connection
     # Timeout after <k> milliseconds
+    print("Opening socket at", str(locator))
     listen_socket = create_socket(locator)
 
     def alarm_handler(signum, frame):
@@ -48,7 +50,7 @@ def handle_request(request, locator):
 
     client_connection, client_adddress = listen_socket.accept()
 
-    request = client_coonnection.recv(1024)
+    request = client_connection.recv(1024)
     client_connection.send(b"Floop dee doo1!!\r\n\r\n")
     client_connection.close()
 
