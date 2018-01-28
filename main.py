@@ -65,6 +65,8 @@ request_distributor = MCMRequestHandler()
 print('Serving MCMP on port %s ...' % PORT)
 while True:
     client_connection, client_address = listen_socket.accept()
-    request = client_connection.recv(1024)
+    request = client_connection.recv(1024)  # This is not a request!!!
+    # Change variable name to indicate the initiation of a connection
 
+    # distribute_request() is where we gen. the new <x:y> for the client.
     request_distributor.distribute_request(request, client_connection)
